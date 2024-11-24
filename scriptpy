@@ -1,0 +1,32 @@
+# prompt: create streamlit code to build horizontal tab  with thisoptions (All ttime chart, continent chart ,countrychart )
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load your data (replace 'internet_usages_continent.csv' with your actual file)
+int_df = pd.read_csv('internet_usages_continent.csv')
+
+# Create tabs
+tab1, tab2, tab3 = st.tabs(["All Time Chart", "Continent Chart", "Country Chart"])
+
+with tab1:
+    # All Time Chart content
+    fig = px.line(int_df, x="Year", y="Internet_usage", color="continent", title="Internet Usage per Year by Continent")
+    st.plotly_chart(fig)
+
+with tab2:
+    # Continent Chart content
+    continent_year_df = int_df.groupby(['continent', 'Year'])['Internet_usage'].sum().reset_index()
+    fig_continent = px.line(continent_year_df, x="Year", y="Internet_usage", color="continent", title="Internet Usage per Year by Continent")
+    st.plotly_chart(fig_continent)
+
+with tab3:
+    # Country Chart content
+    selected_country = st.selectbox("Select a Country", int_df['Entity'].unique())
+    df_country = int_df[int_df['Entity'] == selected_country]
+    if not df_country.empty:
+        fig_country = px.line(df_country, x="Year", y="Internet_usage", color="Year", title=f"Internet Usage per Year in {selected_country}")
+        st.plotly_chart(fig_country)
+    else:
+        st.write(f"No data available for {selected_country}")
